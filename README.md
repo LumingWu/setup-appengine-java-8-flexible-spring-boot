@@ -1,3 +1,130 @@
-# setup-appengine-java-8-flexible-spring-boot
+# Spring Boot based Hello World app
 
-A simple set up for google appengine flexible environment(java 8) with spring-boot.
+This sample shows how to run a [Spring Boot][spring-boot] application on [Google
+Cloud Platform][cloud-java]. It uses the [Google App Engine flexible
+environment][App Engine-flexible].
+
+[App Engine-flexible]: https://cloud.google.com/appengine/docs/flexible/
+[cloud-java]: https://cloud.google.com/java/
+[spring-boot]: http://projects.spring.io/spring-boot/
+
+
+## Before you begin
+
+This sample assumes you have [Java 8][java8] installed.
+
+[java8]: http://www.oracle.com/technetwork/java/javase/downloads/
+
+### Download Maven
+
+These samples use the [Apache Maven][maven] build system. Before getting
+started, be sure to [download][maven-download] and [install][maven-install] it.
+When you use Maven as described here, it will automatically download the needed
+client libraries.
+
+[maven]: https://maven.apache.org
+[maven-download]: https://maven.apache.org/download.cgi
+[maven-install]: https://maven.apache.org/install.html
+
+### Create a Project in the Google Cloud Platform Console
+
+If you haven't already created a project, create one now. Projects enable you to
+manage all Google Cloud Platform resources for your app, including deployment,
+access control, billing, and services.
+
+1. Open the [Cloud Platform Console][cloud-console].
+1. In the drop-down menu at the top, select **Create a project**.
+1. Give your project a name.
+1. Make a note of the project ID, which might be different from the project
+   name. The project ID is used in commands and in configurations.
+
+[cloud-console]: https://console.cloud.google.com/
+
+### Enable billing for your project.
+
+If you haven't already enabled billing for your project, [enable
+billing][enable-billing] now.  Enabling billing allows the application to
+consume billable resources such as running instances and storing data.
+
+[enable-billing]: https://console.cloud.google.com/project/_/settings
+
+### Install the Google Cloud SDK.
+
+If you haven't already installed the Google Cloud SDK, [install and initialize
+the Google Cloud SDK][cloud-sdk] now. The SDK contains tools and libraries that
+enable you to create and manage resources on Google Cloud Platform.
+
+[cloud-sdk]: https://cloud.google.com/sdk/
+
+### Install the Google App Engine SDK for Java
+
+
+```
+gcloud components update app-engine-java
+gcloud components update
+```
+
+### Configure the `app.yaml` descriptor
+
+The [`app.yaml`][app-yaml] descriptor is used to describe URL
+dispatch and resource requirements.  This example sets
+[`manual_scaling`][manual-scaling] to 1 to minimize possible costs.
+These settings should be revisited for production use.
+
+[app-yaml]: https://cloud.google.com/appengine/docs/flexible/java/configuring-your-app-with-app-yaml
+[manual-scaling]: https://cloud.google.com/appengine/docs/flexible/java/configuring-your-app-with-app-yaml#manual-scaling
+
+## Run the application locally
+
+1. Set the correct Cloud SDK project via `gcloud config set project
+   YOUR_PROJECT` to the ID of your application.
+1. Run `mvn spring-boot:run`
+1. Visit http://localhost:8080
+
+
+## Deploy to App Engine flexible environment
+
+1. `mvn appengine:deploy`
+1. Visit `http://YOUR_PROJECT.appspot.com`.
+
+Note that deployment to the App Engine flexible environment requires the new
+[`com.google.cloud.tools:appengine-maven-plugin` plugin][new-maven-plugin].
+
+[new-maven-plugin]: https://cloud.google.com/appengine/docs/flexible/java/using-maven
+
+Java is a registered trademark of Oracle Corporation and/or its affiliates.
+
+## My Additional Suggestions From Spending 3 Days To Make It Work
+I believe the flexible environment is going to use some of the Compute Engine features
+because you can't disable the Compute Engine API without a warning from App Engine.
+
+I messed up the account permission before. In order to fix that, you can go to the
+console, IAM & Admin. Delete every service account permission except the owner(your
+email). Go to API Manager, disable the APIs and then re-enable them again. The re-enable
+will automatically add relevant service accounts with the default permission.
+
+Also, don't forget to enable the Google Flexible Environment API in the API manager, 
+I did that to fix something I don't know.
+
+To deploy, you should first run gcloud commands to initialize(gcloud init) and 
+login(gcloud auth login).
+
+To test Spring-boot locally, mvn spring-boot:run is so far good enough for me.
+To test deployment locally, mvn jetty:run-exploded should be enough to test it.
+
+The dependency tomcat-embed-jasper in pom.xml is just for jsp parsing, delete it 
+if not using jsp.
+
+The ServletInitializer is a class that I found from some tutorials that the purpose
+ is to help run in jetty server. Same with dependencies such as jetty-maven-plugin,
+ spring-boot-starter-jetty, and excluding tomcat in starter. The starter dependencies 
+ are suggested from the Spring official website and the jetty-maven-plugin dependency is 
+ suggested by the appengine website.
+ 
+ I also learned that deploying in jar and war are very different. In war, the webapp/
+ WEB-INF directory will be storing the pages. But in jar, the jar will not include that 
+ directory, this is told on the Spring official website too. So if you really want jar
+  deployment, get ready to have more pain in the ass.
+  
+ That concludes my setup for spring boot in app engine, happy coding!
+
